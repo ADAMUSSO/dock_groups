@@ -94,8 +94,9 @@ const GroupItem = GObject.registerClass({
 });
 
 export class GroupPopup {
-    constructor({group, apps, sourceActor, settings, onClosing, onClosed}) {
+    constructor({group, apps, sourceActor, settings, light, onClosing, onClosed}) {
         this._group = group;
+        this._light = light;
         this._apps = apps;
         this._source = sourceActor;
         this._settings = settings;
@@ -132,6 +133,8 @@ export class GroupPopup {
             height: global.stage.height,
             opacity: 0,
         });
+        if (this._light)
+            this._backdrop.add_style_class_name('dock-groups-light');
         // Clicks outside the panel close the popup. Don't stop events inside
         // the panel: the item buttons' click gestures need them to bubble.
         this._backdrop.connect('button-press-event', (_a, event) => {
@@ -159,7 +162,7 @@ export class GroupPopup {
         this._backdrop.add_child(this._panel);
 
         const title = new St.Label({
-            text: this._group.name || 'Skupina',
+            text: this._group.name || 'Group',
             style_class: 'dock-groups-title',
             x_align: Clutter.ActorAlign.CENTER,
         });
@@ -184,7 +187,7 @@ export class GroupPopup {
 
         if (this._apps.length === 0) {
             const empty = new St.Label({
-                text: 'Skupina je prázdna.\nPridaj aplikácie v nastaveniach.',
+                text: 'This group is empty.\nAdd applications in the settings.',
                 style_class: 'dock-groups-empty',
             });
             layout.attach(empty, 0, 0, 1, 1);

@@ -115,8 +115,8 @@ export function writeGroup(extensionPath, uuid, group, lookupApp) {
     const content = [
         '[Desktop Entry]',
         'Type=Application',
-        `Name=${escapeDesktopValue(group.name || 'Skupina')}`,
-        'Comment=Skupina aplikácií (Dock Groups)',
+        `Name=${escapeDesktopValue(group.name || 'Group')}`,
+        'Comment=Application group (Dock Groups)',
         `Icon=${iconPath}`,
         `Exec=${exec}`,
         'StartupNotify=false',

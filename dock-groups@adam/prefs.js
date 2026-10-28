@@ -22,11 +22,7 @@ function newId() {
 }
 
 function appCountLabel(n) {
-    if (n === 1)
-        return '1 aplikácia';
-    if (n >= 2 && n <= 4)
-        return `${n} aplikácie`;
-    return `${n} aplikácií`;
+    return n === 1 ? '1 application' : `${n} applications`;
 }
 
 function lookupApp(id) {
@@ -101,16 +97,16 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
 
     _buildGroupsPage() {
         const page = new Adw.PreferencesPage({
-            title: 'Skupiny',
+            title: 'Groups',
             icon_name: 'view-app-grid-symbolic',
         });
 
         this._groupsGroup = new Adw.PreferencesGroup({
-            title: 'Skupiny v docku',
-            description: 'Klikni na skupinu v docku a otvorí sa okno s jej aplikáciami.',
+            title: 'Groups in the Dock',
+            description: 'Click a group in the dock to open a popup with its applications.',
         });
         const addButton = new Gtk.Button({
-            child: new Adw.ButtonContent({icon_name: 'list-add-symbolic', label: 'Nová skupina'}),
+            child: new Adw.ButtonContent({icon_name: 'list-add-symbolic', label: 'New Group'}),
             css_classes: ['suggested-action'],
             valign: Gtk.Align.CENTER,
         });
@@ -151,8 +147,8 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
 
         if (groups.length === 0) {
             const row = new Adw.ActionRow({
-                title: 'Zatiaľ žiadne skupiny',
-                subtitle: 'Vytvor prvú pomocou tlačidla „Nová skupina“.',
+                title: 'No groups yet',
+                subtitle: 'Create the first one with the “New Group” button.',
             });
             row.add_prefix(Gtk.Image.new_from_icon_name('folder-new-symbolic'));
             this._addRow(row);
@@ -169,7 +165,7 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
 
     _groupRow(group, index, count, favorites) {
         const row = new Adw.ExpanderRow({
-            title: GLib.markup_escape_text(group.name || 'Skupina', -1),
+            title: GLib.markup_escape_text(group.name || 'Group', -1),
             subtitle: appCountLabel(group.apps.length),
             expanded: this._expanded.has(group.id),
         });
@@ -185,25 +181,25 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
 
         // Move the whole group up/down in this list.
         const moveBox = new Gtk.Box({spacing: 4, valign: Gtk.Align.CENTER});
-        moveBox.append(this._iconButton('go-up-symbolic', 'Posunúť vyššie', index > 0,
+        moveBox.append(this._iconButton('go-up-symbolic', 'Move up', index > 0,
             () => this._moveGroup(group.id, -1)));
-        moveBox.append(this._iconButton('go-down-symbolic', 'Posunúť nižšie', index < count - 1,
+        moveBox.append(this._iconButton('go-down-symbolic', 'Move down', index < count - 1,
             () => this._moveGroup(group.id, 1)));
         row.add_suffix(moveBox);
 
         const nameRow = new Adw.EntryRow({
-            title: 'Názov skupiny',
+            title: 'Group name',
             text: group.name ?? '',
             show_apply_button: true,
         });
         nameRow.connect('apply', () => {
-            const name = nameRow.text.trim() || 'Skupina';
+            const name = nameRow.text.trim() || 'Group';
             this._updateGroup(group.id, g => (g.name = name));
         });
         row.add_row(nameRow);
 
         const dockRow = new Adw.SwitchRow({
-            title: 'Zobraziť v docku',
+            title: 'Show in dock',
             active: favorites.includes(desktopIdFor(group.id)),
         });
         dockRow.connect('notify::active', () => this._setInDock(group.id, dockRow.active));
@@ -213,7 +209,7 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
             const info = lookupApp(appId);
             const appRow = new Adw.ActionRow({
                 title: GLib.markup_escape_text(info?.get_name() ?? appId, -1),
-                subtitle: info ? '' : 'Aplikácia nie je nainštalovaná',
+                subtitle: info ? '' : 'Application is not installed',
             });
             const img = info?.get_icon()
                 ? Gtk.Image.new_from_gicon(info.get_icon())
@@ -221,24 +217,24 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
             img.set_pixel_size(32);
             appRow.add_prefix(img);
 
-            appRow.add_suffix(this._iconButton('go-up-symbolic', 'Posunúť vyššie', i > 0,
+            appRow.add_suffix(this._iconButton('go-up-symbolic', 'Move up', i > 0,
                 () => this._moveApp(group.id, i, -1)));
-            appRow.add_suffix(this._iconButton('go-down-symbolic', 'Posunúť nižšie', i < group.apps.length - 1,
+            appRow.add_suffix(this._iconButton('go-down-symbolic', 'Move down', i < group.apps.length - 1,
                 () => this._moveApp(group.id, i, 1)));
-            appRow.add_suffix(this._iconButton('list-remove-symbolic', 'Odobrať zo skupiny', true,
+            appRow.add_suffix(this._iconButton('list-remove-symbolic', 'Remove from group', true,
                 () => this._updateGroup(group.id, g => g.apps.splice(i, 1))));
             row.add_row(appRow);
         });
 
         const addApps = new Adw.ButtonRow({
-            title: 'Pridať aplikácie…',
+            title: 'Add Applications…',
             start_icon_name: 'list-add-symbolic',
         });
         addApps.connect('activated', () => this._chooseApps(group));
         row.add_row(addApps);
 
         const remove = new Adw.ButtonRow({
-            title: 'Odstrániť skupinu',
+            title: 'Delete Group',
             start_icon_name: 'user-trash-symbolic',
             css_classes: ['destructive-action'],
         });
@@ -290,11 +286,11 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
 
     _confirmDelete(group) {
         const dialog = new Adw.AlertDialog({
-            heading: `Odstrániť skupinu „${group.name}“?`,
-            body: 'Aplikácie zo skupiny sa vrátia späť do docku.',
+            heading: `Delete group “${group.name}”?`,
+            body: 'The group’s applications will be returned to the dock.',
         });
-        dialog.add_response('cancel', 'Zrušiť');
-        dialog.add_response('delete', 'Odstrániť');
+        dialog.add_response('cancel', 'Cancel');
+        dialog.add_response('delete', 'Delete');
         dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
         dialog.set_default_response('cancel');
         dialog.connect('response', (_d, response) => {
@@ -321,15 +317,15 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
         }
 
         const dialog = new Adw.Dialog({
-            title: isNew ? 'Nová skupina' : `Pridať do „${group.name}“`,
+            title: isNew ? 'New Group' : `Add to “${group.name}”`,
             content_width: 440,
             content_height: 620,
         });
         const toolbar = new Adw.ToolbarView();
         const header = new Adw.HeaderBar({show_end_title_buttons: false, show_start_title_buttons: false});
-        const cancel = new Gtk.Button({label: 'Zrušiť'});
+        const cancel = new Gtk.Button({label: 'Cancel'});
         const confirm = new Gtk.Button({
-            label: isNew ? 'Vytvoriť' : 'Pridať',
+            label: isNew ? 'Create' : 'Add',
             css_classes: ['suggested-action'],
             sensitive: isNew,
         });
@@ -349,12 +345,12 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
         let nameEntry = null;
         if (isNew) {
             const nameList = new Gtk.ListBox({css_classes: ['boxed-list'], selection_mode: Gtk.SelectionMode.NONE});
-            nameEntry = new Adw.EntryRow({title: 'Názov skupiny', text: 'Nová skupina'});
+            nameEntry = new Adw.EntryRow({title: 'Group name', text: 'New Group'});
             nameList.append(nameEntry);
             content.append(nameList);
         }
 
-        const search = new Gtk.SearchEntry({placeholder_text: 'Hľadať aplikácie…'});
+        const search = new Gtk.SearchEntry({placeholder_text: 'Search applications…'});
         content.append(search);
 
         const list = new Gtk.ListBox({
@@ -380,7 +376,7 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
             const other = memberOf.get(info.get_id());
             const row = new Adw.ActionRow({
                 title: GLib.markup_escape_text(info.get_name(), -1),
-                subtitle: other ? GLib.markup_escape_text(`Už v skupine „${other}“`, -1) : '',
+                subtitle: other ? GLib.markup_escape_text(`Already in group “${other}”`, -1) : '',
                 activatable_widget: check,
             });
             row._name = info.get_name().toLowerCase();
@@ -416,7 +412,7 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
                 const id = newId();
                 all.push({
                     id,
-                    name: nameEntry.text.trim() || 'Nová skupina',
+                    name: nameEntry.text.trim() || 'New Group',
                     apps: [...selected],
                 });
                 this._expanded.add(id);
@@ -440,29 +436,53 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
 
     _buildAppearancePage() {
         const page = new Adw.PreferencesPage({
-            title: 'Vzhľad a správanie',
+            title: 'Appearance & Behavior',
             icon_name: 'preferences-desktop-appearance-symbolic',
         });
 
-        const look = new Adw.PreferencesGroup({title: 'Okno skupiny'});
+        const look = new Adw.PreferencesGroup({title: 'Group Popup'});
         page.add(look);
 
+        const themes = [
+            ['auto', 'Automatic'],
+            ['light', 'Light'],
+            ['dark', 'Dark'],
+        ];
+        const theme = new Adw.ComboRow({
+            title: 'Theme',
+            subtitle: 'Automatic follows the system light/dark style',
+            model: Gtk.StringList.new(themes.map(([, label]) => label)),
+        });
+        const syncTheme = () => {
+            const i = themes.findIndex(([value]) => value === this._settings.get_string('theme'));
+            theme.selected = Math.max(i, 0);
+        };
+        syncTheme();
+        const themeId = this._settings.connect('changed::theme', syncTheme);
+        theme.connect('notify::selected', () => {
+            const value = themes[theme.selected]?.[0] ?? 'auto';
+            if (this._settings.get_string('theme') !== value)
+                this._settings.set_string('theme', value);
+        });
+        theme.connect('destroy', () => this._settings.disconnect(themeId));
+        look.add(theme);
+
         const iconSize = Adw.SpinRow.new_with_range(32, 128, 8);
-        iconSize.set({title: 'Veľkosť ikon', subtitle: 'v pixeloch'});
+        iconSize.set({title: 'Icon size', subtitle: 'In pixels'});
         this._settings.bind('icon-size', iconSize, 'value', Gio.SettingsBindFlags.DEFAULT);
         look.add(iconSize);
 
         const cols = Adw.SpinRow.new_with_range(0, 8, 1);
-        cols.set({title: 'Počet stĺpcov', subtitle: '0 = automaticky podľa počtu aplikácií'});
+        cols.set({title: 'Columns', subtitle: '0 = automatic, based on the number of applications'});
         this._settings.bind('columns', cols, 'value', Gio.SettingsBindFlags.DEFAULT);
         look.add(cols);
 
-        const labels = new Adw.SwitchRow({title: 'Zobraziť názvy aplikácií'});
+        const labels = new Adw.SwitchRow({title: 'Show application names'});
         this._settings.bind('show-labels', labels, 'active', Gio.SettingsBindFlags.DEFAULT);
         look.add(labels);
 
         const speed = Adw.SpinRow.new_with_range(0.25, 3, 0.25);
-        speed.set({title: 'Dĺžka animácií', subtitle: '1 = normálna, menej = rýchlejšie', digits: 2});
+        speed.set({title: 'Animation duration', subtitle: '1 = normal, lower = faster', digits: 2});
         this._settings.bind('animation-speed', speed, 'value', Gio.SettingsBindFlags.DEFAULT);
         look.add(speed);
 
@@ -470,8 +490,8 @@ export default class DockGroupsPreferences extends ExtensionPreferences {
         page.add(behaviour);
 
         const removeMembers = new Adw.SwitchRow({
-            title: 'Presunúť aplikácie do skupiny',
-            subtitle: 'Aplikácia pridaná do skupiny zmizne zo svojho samostatného miesta v docku',
+            title: 'Move applications into the group',
+            subtitle: 'An application added to a group disappears from its own slot in the dock',
         });
         this._settings.bind('remove-members-from-dock', removeMembers, 'active', Gio.SettingsBindFlags.DEFAULT);
         behaviour.add(removeMembers);

@@ -38,6 +38,7 @@ export default class DockGroupsExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._shellSettings = new Gio.Settings({schema_id: 'org.gnome.shell'});
+        this._interfaceSettings = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
         this._appSystem = Shell.AppSystem.get_default();
         this._popup = null;
         this._pendingIconRefresh = new Set();
@@ -110,6 +111,7 @@ export default class DockGroupsExtension extends Extension {
         this._appSystem?.disconnectObject(this);
         this._settings = null;
         this._shellSettings = null;
+        this._interfaceSettings = null;
         this._appSystem = null;
         this._pendingIconRefresh = null;
     }
@@ -132,6 +134,14 @@ export default class DockGroupsExtension extends Extension {
     _groups() {
         return parseJson(this._settings.get_string('groups'), [])
             .filter(g => g && typeof g.id === 'string' && Array.isArray(g.apps));
+    }
+
+    // 'auto' follows the system style: light unless it prefers dark.
+    _useLightTheme() {
+        const theme = this._settings.get_string('theme');
+        if (theme !== 'auto')
+            return theme === 'light';
+        return this._interfaceSettings.get_string('color-scheme') !== 'prefer-dark';
     }
 
     toggleGroup(groupId) {
@@ -159,6 +169,7 @@ export default class DockGroupsExtension extends Extension {
             apps,
             sourceActor,
             settings: this._settings,
+            light: this._useLightTheme(),
             // After launching an app the dock hides as usual right away.
             // Otherwise wait until the popup's backdrop is gone, so the dock
             // can see whether the pointer is still over it.
