@@ -1,1 +1,1 @@
-# Groups for gnome dock like MacOS
+# Groups for gnome dock
