@@ -1,0 +1,8 @@
+{
+  "uuid": "dock-groups@adam",
+  "name": "Dock Groups",
+  "description": "Zoskupuj aplikácie v docku do priečinkov s animovaným otváraním a zatváraním.",
+  "shell-version": ["48", "49", "50"],
+  "settings-schema": "org.gnome.shell.extensions.dock-groups",
+  "version-name": "1.0"
+}

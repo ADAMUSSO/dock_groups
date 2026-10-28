@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.dock-groups" path="/org/gnome/shell/extensions/dock-groups/">
+    <key name="groups" type="s">
+      <default>'[]'</default>
+      <summary>Skupiny aplikácií (JSON)</summary>
+      <description>Zoznam objektov {id, name, apps: [desktop-id, ...]}</description>
+    </key>
+    <key name="state" type="s">
+      <default>'{}'</default>
+      <summary>Interný stav (ktoré skupiny a členovia už boli premietnutí do docku)</summary>
+    </key>
+    <key name="remove-members-from-dock" type="b">
+      <default>true</default>
+      <summary>Odstrániť aplikácie zo samostatných miest v docku, keď sa pridajú do skupiny</summary>
+    </key>
+    <key name="icon-size" type="i">
+      <range min="32" max="128"/>
+      <default>64</default>
+      <summary>Veľkosť ikon v okne skupiny</summary>
+    </key>
+    <key name="columns" type="i">
+      <range min="0" max="8"/>
+      <default>0</default>
+      <summary>Počet stĺpcov (0 = automaticky)</summary>
+    </key>
+    <key name="show-labels" type="b">
+      <default>true</default>
+      <summary>Zobraziť názvy aplikácií</summary>
+    </key>
+    <key name="animation-speed" type="d">
+      <range min="0.25" max="3.0"/>
+      <default>1.0</default>
+      <summary>Násobok dĺžky animácií</summary>
+    </key>
+  </schema>
+</schemalist>
